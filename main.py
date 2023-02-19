@@ -3,8 +3,8 @@ from pygame.locals import *
 
 pygame.init()
 
-screen_width = 500
-screen_height = 500
+screen_width = 600
+screen_height = 700
 paddle_size = 1
 paddle_color = (224, 187, 228)
 # setting screen
@@ -28,18 +28,27 @@ class paddle():
         self.width = int(screen_width*paddle_size / 3)
         self.x = int((screen_width / 2) - (self.width / 2))
         self.y = screen_height - (self.height * 2)
-        self.speed = 10
         self.rect = Rect(self.x, self.y, self.width, self.height)
-        self.direction = 0
+
+
+    def move(self):
+
+        pos = pygame.mouse.get_pos()  
+        x = pos[0]-self.width/2
+        if (x>=0) and (x<=(screen_width-100 - self.width/2)):
+            self.rect.x = x
+
 		
 current_paddle = paddle()
 run = True
 while run:
     screen.blit(bg_img, (0, 0))
     current_paddle.draw()
+    current_paddle.move()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        
     pygame.display.update()
 pygame.quit()
 
