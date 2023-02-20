@@ -38,13 +38,30 @@ class paddle():
         if (x>=0) and (x<=(screen_width-100 - self.width/2)):
             self.rect.x = x
 
-		
+
+class ball():
+    def __init__(self, x, y):
+        self.ball_radius = 14
+        self.x = x - self.ball_radius
+        self.y = y
+        self.rect = Rect(self.x, self.y, self.ball_radius * 2, self.ball_radius * 2)
+        self.speed_x = 3
+        self.speed_y = -3
+
+    def draw(self):
+        pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
+
+
 current_paddle = paddle()
+current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
+
 run = True
 while run:
     screen.blit(bg_img, (0, 0))
     current_paddle.draw()
     current_paddle.move()
+
+    current_ball.draw()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
