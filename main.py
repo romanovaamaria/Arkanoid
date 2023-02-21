@@ -1,4 +1,5 @@
 import pygame
+import random as rand
 from pygame.locals import *
 
 pygame.init()
@@ -15,18 +16,11 @@ pygame.display.set_caption('Arkanoid')
 bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
-columns = 5
-rows = 5
+columns = 6
+rows = 6
 
 
-class brick:
-    def __init__(self, strength):
-        self.width = screen_width // columns
-        self.height = 50
-        self.strength = strength
-
-
-class paddle:
+class paddle():
     def __init__(self):
         self.default()
 
@@ -47,8 +41,34 @@ class paddle:
         if (x >= 0) and (x <= (screen_width-100 - self.width/2)):
             self.rect.x = x
 
+class brick():
+    def __init__(self, col, row, strength):
+        self.col = col
+        self.row = row
+        self.strength = strength
+        self.height = 50
+        self.width = screen_width/cols
+        self.rect = Rect(self.col*self.width, self.row*self.heigth, self.width, self.height)
 
-class ball:
+class brick_wall():
+	def __init__(self, level):
+		self.level = level
+
+	def create_wall(self):
+		self.rows_of_bricks = []
+		for row in range(rows):
+			#reset the block row list
+			bricks = []
+			for col in range(columns):
+				if  self.level == 1:              
+					strength = 1
+				else:
+					strength = rand.randint(1, 3)
+				current_brick = brick(col,row,strength)
+				bricks.append(current_brick)
+			self.rows_of_bricks.append(bricks)
+
+class ball():
     def __init__(self, x, y):
         self.ball_radius = 14
         self.x = x - self.ball_radius
@@ -59,7 +79,6 @@ class ball:
 
     def draw(self):
         pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
-
 
 current_paddle = paddle()
 current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
