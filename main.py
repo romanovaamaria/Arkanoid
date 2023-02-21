@@ -16,7 +16,7 @@ pygame.display.set_caption('Arkanoid')
 bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
-cols = 6
+columns = 6
 rows = 6
 class paddle():
     def __init__(self):
@@ -47,9 +47,9 @@ class brick():
         self.col = col
         self.row = row
         self.strength = strength
-        self.height = 50
-        self.width = screen_width/cols
-        self.rect = Rect(self.col*self.width, self.row*self.heigth, self.width, self.height)
+        self.heigth = 50
+        self.width = screen_width/columns
+        self.rect = Rect(self.col*self.width, self.row*self.heigth, self.width, self.heigth)
 
 class brick_wall():
 	def __init__(self, level):
@@ -58,12 +58,25 @@ class brick_wall():
 	def create_wall(self):
 		self.rows_of_bricks = []
 		for row in range(rows):
-			#reset the block row list
 			bricks = []
-			for col in range(cols):
-				block_x = col * self.width
-				block_y = row * self.height
-				rect = pygame.Rect(block_x, block_y, self.width, self.height)
+			for col in range(columns):
+				if  self.level == 1:              
+					strength = 1
+				else:
+					strength = rand.randint(1, 3)
+				current_brick = brick(col,row,strength)
+				bricks.append(current_brick)
+			self.rows_of_bricks.append(bricks)
+
+class wall():
+	def __init__(self, level):
+		self.level = level
+
+	def create_wall(self):
+		self.rows_of_bricks = []
+		for row in range(rows):
+			bricks = []
+			for col in range(columns):
 				if  self.level == 1:              
 					strength = 1
 				else:
@@ -73,10 +86,27 @@ class brick_wall():
 			self.rows_of_bricks.append(bricks)
 
 
+	def draw_wall(self):
+		for row in self.rows_of_bricks:
+			for brick in row:
+				if brick.strength == 1:
+					brick_col = (254, 200, 216)
+				elif brick.strength == 2:
+					brick_col = (210, 145, 188)
+				elif brick.strength == 3:
+					brick_col = (149, 125, 173)
+				pygame.draw.rect(screen, brick_col, brick.rect)
+				pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
+			
+    
+
 current_paddle = paddle()
+wall = wall(2)
+wall.create_wall()
 run = True
 while run:
     screen.blit(bg_img, (0, 0))
+    wall.draw_wall()
     current_paddle.draw()
     current_paddle.move()
     for event in pygame.event.get():
