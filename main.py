@@ -15,7 +15,18 @@ pygame.display.set_caption('Arkanoid')
 bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
-class paddle():
+columns = 5
+rows = 5
+
+
+class brick:
+    def __init__(self, strength):
+        self.width = screen_width // columns
+        self.height = 50
+        self.strength = strength
+
+
+class paddle:
     def __init__(self):
         self.default()
 
@@ -23,23 +34,21 @@ class paddle():
         pygame.draw.rect(screen, paddle_color, self.rect, 0, 5)
                         
     def default(self):
-        #define paddle variables
+        # define paddle variables
         self.height = 30
         self.width = int(screen_width*paddle_size / 3)
         self.x = int((screen_width / 2) - (self.width / 2))
         self.y = screen_height - (self.height * 2)
         self.rect = Rect(self.x, self.y, self.width, self.height)
 
-
     def move(self):
-
         pos = pygame.mouse.get_pos()  
         x = pos[0]-self.width/2
-        if (x>=0) and (x<=(screen_width-100 - self.width/2)):
+        if (x >= 0) and (x <= (screen_width-100 - self.width/2)):
             self.rect.x = x
 
 
-class ball():
+class ball:
     def __init__(self, x, y):
         self.ball_radius = 14
         self.x = x - self.ball_radius
@@ -68,5 +77,3 @@ while run:
         
     pygame.display.update()
 pygame.quit()
-
-
