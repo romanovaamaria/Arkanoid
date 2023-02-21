@@ -46,18 +46,31 @@ class brick():
         self.col = col
         self.row = row
         self.strength = strength
-        self.height = 50
-        self.width = screen_width/cols
-        self.rect = Rect(self.col*self.width, self.row*self.heigth, self.width, self.height)
+        self.heigth = 50
+        self.width = screen_width/columns
+        self.rect = Rect(self.col*self.width, self.row*self.heigth, self.width, self.heigth)
+
+
 
 class brick_wall():
 	def __init__(self, level):
 		self.level = level
-
+    
+	def draw_wall(self):
+		for row in self.rows_of_bricks:
+			for brick in row:
+				if brick.strength == 1:
+					brick_col = (254, 200, 216)
+				elif brick.strength == 2:
+					brick_col = (210, 145, 188)
+				elif brick.strength == 3:
+					brick_col = (149, 125, 173)
+				pygame.draw.rect(screen, brick_col, brick.rect)
+				pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
+			
 	def create_wall(self):
 		self.rows_of_bricks = []
 		for row in range(rows):
-			#reset the block row list
 			bricks = []
 			for col in range(columns):
 				if  self.level == 1:              
@@ -67,6 +80,7 @@ class brick_wall():
 				current_brick = brick(col,row,strength)
 				bricks.append(current_brick)
 			self.rows_of_bricks.append(bricks)
+
 
 class ball():
     def __init__(self, x, y):
@@ -81,11 +95,14 @@ class ball():
         pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
 
 current_paddle = paddle()
+wall = brick_wall(2)
+wall.create_wall()
 current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
 
 run = True
 while run:
     screen.blit(bg_img, (0, 0))
+    wall.draw_wall()
     current_paddle.draw()
     current_paddle.move()
 
