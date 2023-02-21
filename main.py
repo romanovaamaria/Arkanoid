@@ -54,11 +54,29 @@ class ball:
         self.x = x - self.ball_radius
         self.y = y
         self.rect = Rect(self.x, self.y, self.ball_radius * 2, self.ball_radius * 2)
-        self.speed_x = 3
-        self.speed_y = -3
+        self.speed_x = 1
+        self.speed_y = -1
+        self.game = True
 
     def draw(self):
         pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
+
+    def move(self):
+        # bounce from the sides and top
+        if self.rect.right > screen_width or self.rect.left < 0:
+            self.speed_x *= -1
+        if self.rect.top < 0:
+            self.speed_y *= -1
+        # fall at the bottom for game over condition
+        if self.rect.bottom > screen_height:
+            self.game = False
+
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+
+        return self.game
+
+
 
 
 current_paddle = paddle()
@@ -71,6 +89,7 @@ while run:
     current_paddle.move()
 
     current_ball.draw()
+    current_ball.move()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
