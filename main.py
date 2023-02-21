@@ -99,17 +99,50 @@ wall = brick_wall(2)
 wall.create_wall()
 current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
 
-run = True
-while run:
-    screen.blit(bg_img, (0, 0))
-    wall.draw_wall()
-    current_paddle.draw()
-    current_paddle.move()
+def main_menu():
+    while True:
+ 
+        screen.blit(bg_img, (0, 0))
+        x, y = pygame.mouse.get_pos()
+ 
+        button_1 = pygame.Rect(screen_width/3, 100, 200, 50)
+        button_2 = pygame.Rect(screen_width/3, 200, 200, 50)
+        if button_1.collidepoint((x, y)):
+            if click:
+                game(1)
+        if button_2.collidepoint((x, y)):
+            if click:
+                game(2)
+        pygame.draw.rect(screen, (149, 125, 173), button_1, 0, 5)
+        pygame.draw.rect(screen, (149, 125, 173), button_2, 0, 5)
+        click = False
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+ 
+        pygame.display.update()
 
-    current_ball.draw()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        
-    pygame.display.update()
+def game(level):
+     wall = brick_wall(level)
+     wall.create_wall()
+     run = True
+     while run:
+        screen.blit(bg_img, (0, 0))
+        wall.draw_wall()
+        current_paddle.draw()
+        current_paddle.move()
+
+        current_ball.draw()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            
+        pygame.display.update()
+main_menu()
 pygame.quit()
