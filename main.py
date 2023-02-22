@@ -20,6 +20,14 @@ columns = 6
 rows = 6
 
 
+click = False
+
+def draw_text(str, font, color, screen, x, y):
+    text = font.render(str, 1, color)
+    textrect = text.get_rect()
+    textrect.topleft = (x, y)
+    screen.blit(text, textrect)
+
 class paddle():
     def __init__(self):
         self.default()
@@ -97,16 +105,15 @@ class ball():
 current_paddle = paddle()
 wall = brick_wall(2)
 wall.create_wall()
-current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
+current_ball = ball(current_paddle.x + (current_paddle.width/2), current_paddle.y - current_paddle.height)
 
 def main_menu():
     while True:
- 
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
- 
-        button_1 = pygame.Rect(screen_width/3, 100, 200, 50)
-        button_2 = pygame.Rect(screen_width/3, 200, 200, 50)
+        font = pygame.font.SysFont(None, 100)
+        button_1 = pygame.Rect(100, 260, 400, 100)
+        button_2 = pygame.Rect(100, 460, 400, 100)
         if button_1.collidepoint((x, y)):
             if click:
                 game(1)
@@ -114,7 +121,14 @@ def main_menu():
             if click:
                 game(2)
         pygame.draw.rect(screen, (149, 125, 173), button_1, 0, 5)
+        draw_text('WELCOME TO', font, (255, 255, 255), screen, 50, 20)
+        draw_text('ARKANOID', font, (255, 255, 255), screen, 100, 80)
+        font = pygame.font.SysFont(None, 80)
+        draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 100, 200)
         pygame.draw.rect(screen, (149, 125, 173), button_2, 0, 5)
+        font = pygame.font.SysFont(None, 100)
+        draw_text('EASY', font, (255, 255, 255), screen, 200, 280)
+        draw_text('HARD', font, (255, 255, 255), screen, 200, 480)
         click = False
         for event in pygame.event.get():
             if event.type == QUIT:
