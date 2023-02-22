@@ -1,5 +1,6 @@
 import pygame
 import random as rand
+import argparse
 from pygame.locals import *
 
 pygame.init()
@@ -7,7 +8,13 @@ pygame.init()
 screen_width = 600
 screen_height = 700
 paddle_size = 1
+
+#default color palette
 paddle_color = (224, 187, 228)
+color1 =(254, 200, 216)
+color2 = (210, 145, 188)
+color3= (149, 125, 173)
+
 # setting screen
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('Arkanoid')
@@ -19,8 +26,32 @@ bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 columns = 6
 rows = 6
 
-
 click = False
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--color', help ='Change color palette', choices =['1','2','3','4'])
+args = parser.parse_args()
+
+if args.color =='1':
+    paddle_color = (224, 187, 228)
+    color1 =(254, 200, 216)
+    color2 = (210, 145, 188)
+    color3= (149, 125, 173)
+elif args.color =='2':
+    paddle_color = (247, 226, 203)
+    color1 =(250, 214, 165)
+    color2 = (247, 179, 156)
+    color3= (242, 150, 150)
+elif args.color =='3':
+    paddle_color = (111, 211, 252)
+    color1 =(97, 168, 237)
+    color2 = (62, 115, 206)
+    color3= (49, 66, 190)
+elif args.color =='4':
+    paddle_color = (143, 217, 168)
+    color1 =(72, 191, 145)
+    color2 = (21, 153, 122)
+    color3= (1, 121, 111)
 
 def draw_text(str, font, color, screen, x, y):
     text = font.render(str, 1, color)
@@ -68,11 +99,11 @@ class brick_wall():
 		for row in self.rows_of_bricks:
 			for brick in row:
 				if brick.strength == 1:
-					brick_col = (254, 200, 216)
+					brick_col = color1
 				elif brick.strength == 2:
-					brick_col = (210, 145, 188)
+					brick_col = color2
 				elif brick.strength == 3:
-					brick_col = (149, 125, 173)
+					brick_col = color3
 				pygame.draw.rect(screen, brick_col, brick.rect)
 				pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
 			
@@ -120,12 +151,12 @@ def main_menu():
         if button_2.collidepoint((x, y)):
             if click:
                 game(2)
-        pygame.draw.rect(screen, (149, 125, 173), button_1, 0, 5)
+        pygame.draw.rect(screen, color3, button_1, 0, 5)
         draw_text('WELCOME TO', font, (255, 255, 255), screen, 50, 20)
         draw_text('ARKANOID', font, (255, 255, 255), screen, 100, 80)
         font = pygame.font.SysFont(None, 80)
         draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 100, 200)
-        pygame.draw.rect(screen, (149, 125, 173), button_2, 0, 5)
+        pygame.draw.rect(screen, color3, button_2, 0, 5)
         font = pygame.font.SysFont(None, 100)
         draw_text('EASY', font, (255, 255, 255), screen, 200, 280)
         draw_text('HARD', font, (255, 255, 255), screen, 200, 480)
