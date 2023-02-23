@@ -11,9 +11,9 @@ paddle_size = 1
 
 # default color palette
 paddle_color = (224, 187, 228)
-color1 =(254, 200, 216)
+color1 = (254, 200, 216)
 color2 = (210, 145, 188)
-color3= (149, 125, 173)
+color3 = (149, 125, 173)
 
 # setting screen
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -26,32 +26,30 @@ bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 columns = 6
 rows = 6
 
-click = False
-
 parser = argparse.ArgumentParser()
-parser.add_argument('--color', help ='Change color palette', choices =['1','2','3','4'])
+parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
 args = parser.parse_args()
 
 if args.color == '1':
     paddle_color = (224, 187, 228)
-    color1 =(254, 200, 216)
+    color1 = (254, 200, 216)
     color2 = (210, 145, 188)
-    color3= (149, 125, 173)
+    color3 = (149, 125, 173)
 elif args.color == '2':
     paddle_color = (247, 226, 203)
-    color1 =(250, 214, 165)
+    color1 = (250, 214, 165)
     color2 = (247, 179, 156)
-    color3= (242, 150, 150)
+    color3 = (242, 150, 150)
 elif args.color == '3':
     paddle_color = (111, 211, 252)
-    color1 =(97, 168, 237)
+    color1 = (97, 168, 237)
     color2 = (62, 115, 206)
-    color3= (49, 66, 190)
+    color3 = (49, 66, 190)
 elif args.color == '4':
     paddle_color = (143, 217, 168)
-    color1 =(72, 191, 145)
+    color1 = (72, 191, 145)
     color2 = (21, 153, 122)
-    color3= (1, 121, 111)
+    color3 = (1, 121, 111)
 
 
 def draw_text(str, font, color, screen, x, y):
@@ -88,9 +86,13 @@ class brick():
         self.col = col
         self.row = row
         self.strength = strength
-        self.heigth = 50
+        self.heigth = 45
         self.width = screen_width/columns
         self.rect = Rect(self.col*self.width, self.row*self.heigth, self.width, self.heigth)
+        self.left = self.col * self.width
+        self.right = self.col * self.width + self.width
+        self.top = self.row * self.heigth
+        self.bottom = self.row * self.heigth + self.heigth
 
 
 class brick_wall():
@@ -114,11 +116,11 @@ class brick_wall():
         for row in range(rows):
             bricks = []
             for col in range(columns):
-                if  self.level == 1:
+                if self.level == 1:
                     strength = 1
                 else:
                     strength = rand.randint(1, 3)
-                current_brick = brick(col,row,strength)
+                current_brick = brick(col, row, strength)
                 bricks.append(current_brick)
             self.rows_of_bricks.append(bricks)
 
@@ -131,13 +133,16 @@ class ball():
         self.rect = Rect(self.x, self.y, self.ball_radius * 2, self.ball_radius * 2)
         self.speed_x = 1
         self.speed_y = -1
-        self.speed_max = 2
         self.game = True
 
     def draw(self):
         pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
 
-    def move(self):
+    def move(self, wall):
+
+        wall_destroyed = True
+        # difference between blocks collided
+        diff_between = 5
 
         # bounce from the sides and top
         if self.rect.right > screen_width or self.rect.left < 0:
@@ -150,16 +155,50 @@ class ball():
 
         # collision with the paddle
         if self.rect.colliderect(current_paddle):
-            if abs(self.rect.bottom - current_paddle.rect.top) < 5 and self.speed_y > 0:
+            if abs(self.rect.bottom - current_paddle.rect.top) < diff_between and self.speed_y > 0:
                 self.speed_y *= -1
-                self.speed_x *= 1
-                if self.speed_x > self.speed_max:
-                    self.speed_x = self.speed_max
-                elif self.speed_x < 0 and self.speed_x < -self.speed_max:
-                    self.speed_x *= -self.speed_max
             else:
                 self.speed_x *= -1
 
+        for row in wall.rows_of_bricks:
+            for item in row:
+                # check if there was a collision and from which side
+                if self.rect.colliderect(item.rect):
+                    if abs(self.rect.bottom - item.top) < diff_between and self.speed_y > 0:
+                        self.speed_y *= -1
+                        # change brick strength
+                        if item.strength > 1:
+                            item.strength -= 1
+                        # delete brick
+                        else:
+                            item.rect = (0, 0, 0, 0)
+                    if abs(self.rect.top - item.bottom) < diff_between and self.speed_y < 0:
+                        self.speed_y *= -1
+                        if item.strength > 1:
+                            item.strength -= 1
+                        else:
+                            item.rect = (0, 0, 0, 0)
+                    if abs(self.rect.right - item.left) < diff_between and self.speed_x > 0:
+                        self.speed_x *= -1
+                        if item.strength > 1:
+                            item.strength -= 1
+                        else:
+                            item.rect = (0, 0, 0, 0)
+                    if abs(self.rect.left - item.right) < diff_between and self.speed_x < 0:
+                        self.speed_x *= -1
+                        if item.strength > 1:
+                            item.strength -= 1
+                        else:
+                            item.rect = (0, 0, 0, 0)
+                # if a bricks was found then the wall is not destroyed and the game continuous
+                if item.rect != (0, 0, 0, 0):
+                    wall_destroyed = False
+
+        # if no bricks was found then the wall is destroyed and a player won
+        if wall_destroyed:
+            self.game = True
+
+        # moving the ball
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
 
@@ -219,7 +258,7 @@ def game(level):
         current_paddle.draw()
         current_paddle.move()
         current_ball.draw()
-        current_ball.move()
+        current_ball.move(wall)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -230,3 +269,4 @@ def game(level):
 main_menu()
 
 pygame.quit()
+
