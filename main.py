@@ -8,6 +8,9 @@ pygame.init()
 screen_width = 600
 screen_height = 700
 paddle_size = 1
+columns = 6
+rows = 6
+
 
 # default color palette
 paddle_color = (224, 187, 228)
@@ -23,8 +26,7 @@ pygame.display.set_caption('Arkanoid')
 bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
-columns = 6
-rows = 6
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
@@ -127,6 +129,12 @@ class brick_wall():
 
 class ball():
     def __init__(self, x, y):
+        self.default(x, y)
+
+    def draw(self):
+        pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
+
+    def default(self, x, y):
         self.ball_radius = 14
         self.x = x - self.ball_radius
         self.y = y
@@ -134,9 +142,6 @@ class ball():
         self.speed_x = 1
         self.speed_y = -1
         self.game = True
-
-    def draw(self):
-        pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
 
     def move(self, wall):
 
@@ -249,24 +254,36 @@ def main_menu():
 
 
 def game(level):
-     wall = brick_wall(level)
-     wall.create_wall()
-     run = True
-     while run:
+    active_ball = False
+    active_game = True
+    wall = brick_wall(level)
+    wall.create_wall()
+    run = True
+    while run:
         screen.blit(bg_img, (0, 0))
+
         wall.draw_wall()
         current_paddle.draw()
-        current_paddle.move()
         current_ball.draw()
-        current_ball.move(wall)
+
+        if active_ball:
+            current_paddle.move()
+            active_game = current_ball.move(wall)
+            if active_game == False:
+                active_ball = False
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.MOUSEBUTTONDOWN and active_ball == False:
+                active_ball = True
+                ball.default(current_ball, current_paddle.x + (current_paddle.width/2),  current_paddle.y - current_paddle.height)
+                paddle.default(current_paddle)
+                wall.create_wall()
             
         pygame.display.update()
 
 
 main_menu()
-
 pygame.quit()
 
