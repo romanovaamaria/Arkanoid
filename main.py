@@ -141,7 +141,7 @@ class ball():
         self.rect = Rect(self.x, self.y, self.ball_radius * 2, self.ball_radius * 2)
         self.speed_x = 1
         self.speed_y = -1
-        self.game = True
+        self.game = 0
 
     def move(self, wall):
 
@@ -156,7 +156,7 @@ class ball():
             self.speed_y *= -1
         # fall at the bottom for game over condition
         if self.rect.bottom > screen_height:
-            self.game = False
+            self.game = -1
 
         # collision with the paddle
         if self.rect.colliderect(current_paddle):
@@ -201,7 +201,7 @@ class ball():
 
         # if no bricks was found then the wall is destroyed and a player won
         if wall_destroyed:
-            self.game = True
+            self.game = 1
 
         # moving the ball
         self.rect.x += self.speed_x
@@ -212,8 +212,6 @@ class ball():
 
 current_paddle = paddle()
 current_ball = ball(current_paddle.x + (current_paddle.width/2), current_paddle.y - current_paddle.height)
-wall = brick_wall(2)
-wall.create_wall()
 
 
 def main_menu():
@@ -222,23 +220,24 @@ def main_menu():
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.SysFont('Times New Roman', 60)
-        button_1 = pygame.Rect(100, 260, 400, 100)
+        button_1 = pygame.Rect(100, 280, 400, 100)
         button_2 = pygame.Rect(100, 460, 400, 100)
+        pygame.draw.rect(screen, color3, button_1, 0, 5)
+        pygame.draw.rect(screen, color3, button_2, 0, 5)
+
         if button_1.collidepoint((x, y)):
             if click:
                 game(1)
         if button_2.collidepoint((x, y)):
             if click:
                 game(2)
-        pygame.draw.rect(screen, color3, button_1, 0, 5)
-        draw_text('WELCOME TO', font, (255, 255, 255), screen, 50, 20)
-        draw_text('ARKANOID', font, (255, 255, 255), screen, 100, 80)
-        font = pygame.font.SysFont('Times New Roman', 60)
-        draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 100, 200)
-        pygame.draw.rect(screen, color3, button_2, 0, 5)
-        font = pygame.font.SysFont('Times New Roman', 60)
-        draw_text('EASY', font, (255, 255, 255), screen, 200, 280)
-        draw_text('HARD', font, (255, 255, 255), screen, 200, 480)
+
+        draw_text('WELCOME TO', font, (255, 255, 255), screen, 100, 20)
+        draw_text('ARKANOID', font, (255, 255, 255), screen, 135, 80)
+        draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 90, 200)
+        draw_text('EASY', font, (255, 255, 255), screen, 220, 295)
+        draw_text('HARD', font, (255, 255, 255), screen, 220, 475)
+
         click = False
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -253,12 +252,48 @@ def main_menu():
         pygame.display.update()
 
 
+def gameover_menu(status, time):
+    click = False
+    while True:
+        screen.blit(bg_img, (0, 0))
+        x, y = pygame.mouse.get_pos()
+        font = pygame.font.SysFont('Times New Roman', 60)
+
+        if status == 1:
+             draw_text('YOU WON!', font, (255, 255, 255), screen, 160, 60)
+        elif status == -1:
+             draw_text('YOU LOST!', font, (255, 255, 255), screen, 150, 60)
+
+        button_1 = pygame.Rect(100, 460, 400, 100)
+        pygame.draw.rect(screen, color3, button_1, 0, 5)
+        draw_text('RESTART', font, (255, 255, 255), screen, 170, 475)
+
+        if button_1.collidepoint((x, y)):
+            if click:
+                main_menu()
+
+        click = False
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+            if event.type == MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+
+        pygame.display.update()
+
 def game(level):
     active_ball = False
-    active_game = True
+    active_game = 0
     wall = brick_wall(level)
     wall.create_wall()
+
     run = True
+    clock = pygame.time.Clock()
+    current_time = 0
     while run:
         screen.blit(bg_img, (0, 0))
 
@@ -269,18 +304,24 @@ def game(level):
         if active_ball:
             current_paddle.move()
             active_game = current_ball.move(wall)
-            if active_game == False:
+            if active_game != 0:
                 active_ball = False
+                current_time = pygame.time.get_ticks()
+                ball.default(current_ball, current_paddle.x + (current_paddle.width/2),  current_paddle.y - current_paddle.height)
+                paddle.default(current_paddle)
+                wall.create_wall()
+                gameover_menu(active_game, current_time)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-            if event.type == pygame.MOUSEBUTTONDOWN and active_ball == False:
+                pygame.quit()
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN and not active_ball:
                 active_ball = True
-                ball.default(current_ball, current_paddle.x + (current_paddle.width/2),  current_paddle.y - current_paddle.height)
-                paddle.default(current_paddle)
-                wall.create_wall()
-            
+
         pygame.display.update()
 
 
