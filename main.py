@@ -1,4 +1,5 @@
 import pygame
+import time
 import random as rand
 import argparse
 from pygame.locals import *
@@ -10,7 +11,6 @@ screen_height = 700
 paddle_size = 1
 columns = 6
 rows = 6
-
 
 # default color palette
 paddle_color = (224, 187, 228)
@@ -25,8 +25,6 @@ pygame.display.set_caption('Arkanoid')
 # setting background image
 bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
-
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
@@ -61,25 +59,33 @@ def draw_text(str, font, color, screen, x, y):
     screen.blit(text, textrect)
 
 
+def time_convert(sec):
+    mins = sec // 60
+    sec = sec % 60
+    hours = mins // 60
+    mins = mins % 60
+    return str("{0}:{1}:{2}".format(int(hours), int(mins), int(sec)))
+
+
 class paddle():
     def __init__(self):
         self.default()
 
     def draw(self):
         pygame.draw.rect(screen, paddle_color, self.rect, 0, 5)
-                        
+
     def default(self):
         # define paddle variables
         self.height = 30
-        self.width = int(screen_width*paddle_size / 3)
+        self.width = int(screen_width * paddle_size / 3)
         self.x = int((screen_width / 2) - (self.width / 2))
         self.y = screen_height - (self.height * 2)
         self.rect = Rect(self.x, self.y, self.width, self.height)
 
     def move(self):
-        pos = pygame.mouse.get_pos()  
-        x = pos[0]-self.width/2
-        if (x >= 0) and (x <= (screen_width-100 - self.width/2)):
+        pos = pygame.mouse.get_pos()
+        x = pos[0] - self.width / 2
+        if (x >= 0) and (x <= (screen_width - 100 - self.width / 2)):
             self.rect.x = x
 
 
@@ -89,8 +95,8 @@ class brick():
         self.row = row
         self.strength = strength
         self.heigth = 45
-        self.width = screen_width/columns
-        self.rect = Rect(self.col*self.width, self.row*self.heigth, self.width, self.heigth)
+        self.width = screen_width / columns
+        self.rect = Rect(self.col * self.width, self.row * self.heigth, self.width, self.heigth)
         self.left = self.col * self.width
         self.right = self.col * self.width + self.width
         self.top = self.row * self.heigth
@@ -100,7 +106,7 @@ class brick():
 class brick_wall():
     def __init__(self, level):
         self.level = level
-    
+
     def draw_wall(self):
         for row in self.rows_of_bricks:
             for brick in row:
@@ -132,7 +138,8 @@ class ball():
         self.default(x, y)
 
     def draw(self):
-        pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius), self.ball_radius)
+        pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius),
+                           self.ball_radius)
 
     def default(self, x, y):
         self.ball_radius = 14
@@ -211,7 +218,7 @@ class ball():
 
 
 current_paddle = paddle()
-current_ball = ball(current_paddle.x + (current_paddle.width/2), current_paddle.y - current_paddle.height)
+current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
 
 
 def main_menu():
@@ -248,11 +255,11 @@ def main_menu():
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
- 
+
         pygame.display.update()
 
 
-def gameover_menu(status, time):
+def gameover_menu(status, time_cur):
     click = False
     while True:
         screen.blit(bg_img, (0, 0))
@@ -260,9 +267,12 @@ def gameover_menu(status, time):
         font = pygame.font.SysFont('Times New Roman', 60)
 
         if status == 1:
-             draw_text('YOU WON!', font, (255, 255, 255), screen, 160, 60)
+            draw_text('YOU WON!', font, (255, 255, 255), screen, 160, 60)
         elif status == -1:
-             draw_text('YOU LOST!', font, (255, 255, 255), screen, 150, 60)
+            draw_text('YOU LOST!', font, (255, 255, 255), screen, 150, 60)
+
+        draw_text('TIME USED:', font, (255, 255, 255), screen, 145, 200)
+        draw_text(str(time_cur), font, (255, 255, 255), screen, 245, 270)
 
         button_1 = pygame.Rect(100, 460, 400, 100)
         pygame.draw.rect(screen, color3, button_1, 0, 5)
@@ -285,6 +295,7 @@ def gameover_menu(status, time):
 
         pygame.display.update()
 
+
 def game(level):
     active_ball = False
     active_game = 0
@@ -292,8 +303,7 @@ def game(level):
     wall.create_wall()
 
     run = True
-    clock = pygame.time.Clock()
-    current_time = 0
+    start_time = time.time()
     while run:
         screen.blit(bg_img, (0, 0))
 
@@ -306,10 +316,11 @@ def game(level):
             active_game = current_ball.move(wall)
             if active_game != 0:
                 active_ball = False
-                current_time = pygame.time.get_ticks()
-                ball.default(current_ball, current_paddle.x + (current_paddle.width/2),  current_paddle.y - current_paddle.height)
+                ball.default(current_ball, current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
                 paddle.default(current_paddle)
                 wall.create_wall()
+                end_time = time.time()
+                current_time = time_convert(end_time - start_time)
                 gameover_menu(active_game, current_time)
 
         for event in pygame.event.get():
@@ -327,4 +338,3 @@ def game(level):
 
 main_menu()
 pygame.quit()
-
