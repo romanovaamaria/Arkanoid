@@ -26,6 +26,7 @@ pygame.display.set_caption('Arkanoid')
 bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
+# color change
 parser = argparse.ArgumentParser()
 parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
 args = parser.parse_args()
@@ -58,10 +59,9 @@ def draw_text(str, font, color, screen, x, y):
     textrect.topleft = (x, y)
     screen.blit(text, textrect)
 
-
+# func to transform seconds to minutes:seconds format
 def time_convert(sec):
     mins = sec // 60
-    sec = sec % 60
     hours = mins // 60
     mins = mins % 60
     return str("{0}:{1}:{2}".format(int(hours), int(mins), int(sec)))
@@ -134,13 +134,16 @@ class brick_wall():
 
 
 class ball():
+    # default func is used for init
     def __init__(self, x, y):
         self.default(x, y)
 
+    # draw the ball itself
     def draw(self):
         pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius),
                            self.ball_radius)
 
+    # reset all the values
     def default(self, x, y):
         self.ball_radius = 14
         self.x = x - self.ball_radius
@@ -150,6 +153,7 @@ class ball():
         self.speed_y = -1
         self.game = 0
 
+    # the main logic of ball movements and colliding
     def move(self, wall):
 
         wall_destroyed = True
@@ -202,7 +206,7 @@ class ball():
                             item.strength -= 1
                         else:
                             item.rect = (0, 0, 0, 0)
-                # if a bricks was found then the wall is not destroyed and the game continuous
+                # if a bricks was found then the wall is not destroyed - the game continuous
                 if item.rect != (0, 0, 0, 0):
                     wall_destroyed = False
 
@@ -232,6 +236,12 @@ def main_menu():
         pygame.draw.rect(screen, color3, button_1, 0, 5)
         pygame.draw.rect(screen, color3, button_2, 0, 5)
 
+        draw_text('WELCOME TO', font, (255, 255, 255), screen, 100, 20)
+        draw_text('ARKANOID', font, (255, 255, 255), screen, 135, 80)
+        draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 90, 200)
+        draw_text('EASY', font, (255, 255, 255), screen, 220, 295)
+        draw_text('HARD', font, (255, 255, 255), screen, 220, 475)
+
         if button_1.collidepoint((x, y)):
             if click:
                 game(1)
@@ -239,13 +249,6 @@ def main_menu():
             if click:
                 game(2)
 
-        draw_text('WELCOME TO', font, (255, 255, 255), screen, 100, 20)
-        draw_text('ARKANOID', font, (255, 255, 255), screen, 135, 80)
-        draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 90, 200)
-        draw_text('EASY', font, (255, 255, 255), screen, 220, 295)
-        draw_text('HARD', font, (255, 255, 255), screen, 220, 475)
-
-        click = False
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -274,15 +277,16 @@ def gameover_menu(status, time_cur):
         draw_text('TIME USED:', font, (255, 255, 255), screen, 145, 200)
         draw_text(str(time_cur), font, (255, 255, 255), screen, 245, 270)
 
+        # create a button to restart
         button_1 = pygame.Rect(100, 460, 400, 100)
         pygame.draw.rect(screen, color3, button_1, 0, 5)
         draw_text('RESTART', font, (255, 255, 255), screen, 170, 475)
 
+        # if clicked then restart a program
         if button_1.collidepoint((x, y)):
             if click:
                 main_menu()
 
-        click = False
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -297,28 +301,43 @@ def gameover_menu(status, time_cur):
 
 
 def game(level):
+    # initialise ball movement permission
     active_ball = False
-    active_game = 0
+
+    # initialise brickwall
     wall = brick_wall(level)
     wall.create_wall()
 
     run = True
+
+    # start stopwatch
     start_time = time.time()
     while run:
         screen.blit(bg_img, (0, 0))
 
+        # draw a wall, a paddle and a ball
         wall.draw_wall()
         current_paddle.draw()
         current_ball.draw()
 
+        # ball moves
         if active_ball:
             current_paddle.move()
+            # check if the wall is destroyed or the ball fell down
             active_game = current_ball.move(wall)
+
+            # if the wall is destroyed or the ball fell down
             if active_game != 0:
+                # block ball moves
                 active_ball = False
-                ball.default(current_ball, current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
+
+                # reset all the object on their default positions
+                ball.default(current_ball, current_paddle.x + (current_paddle.width / 2),
+                             current_paddle.y - current_paddle.height)
                 paddle.default(current_paddle)
                 wall.create_wall()
+
+                # stop stopwatch
                 end_time = time.time()
                 current_time = time_convert(end_time - start_time)
                 gameover_menu(active_game, current_time)
