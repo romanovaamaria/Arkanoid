@@ -60,7 +60,14 @@ def draw_text(str, font, color, screen, x, y):
     screen.blit(text, textrect)
 
 # func to transform seconds to minutes:seconds format
-def time_convert(sec):
+def time_convert(sec: int | float) -> str:
+    """
+    Converts seconds to hours-minutes-seconds format
+
+    :param sec: seconds given
+    :returns: formated string
+    :rtype: str
+    """
     mins = sec // 60
     hours = mins // 60
     mins = mins % 60
@@ -138,13 +145,26 @@ class ball():
     def __init__(self, x, y):
         self.default(x, y)
 
-    # draw the ball itself
+
     def draw(self):
+        """
+        Draws a ball.
+
+        :returns: None
+        """
         pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius),
                            self.ball_radius)
 
     # reset all the values
-    def default(self, x, y):
+    def default(self, x: int | float, y: int | float) -> None:
+        """
+        Resets all the values to default positions.
+
+        :param x: x coordinate
+        :param y: y coordinate
+        :returns: None
+        :rtype: None
+        """
         self.ball_radius = 14
         self.x = x - self.ball_radius
         self.y = y
@@ -154,7 +174,14 @@ class ball():
         self.game = 0
 
     # the main logic of ball movements and colliding
-    def move(self, wall):
+    def move(self, wall: brick_wall) -> int:
+        """
+        Moves the ball to destroy the bricks.
+
+        :param wall: The wall of bricks
+        :return: win or lose condition
+        :rtype: int
+        """
 
         wall_destroyed = True
         # difference between blocks collided
@@ -262,7 +289,15 @@ def main_menu():
         pygame.display.update()
 
 
-def gameover_menu(status, time_cur):
+def gameover_menu(status: int, time_cur: str) -> None:
+    """
+    Final menu with stats and restart button.
+
+    :param status: Win or lose condition,
+    :param time_cur: String with formated time
+    :return: None
+    """
+
     click = False
     while True:
         screen.blit(bg_img, (0, 0))
@@ -300,7 +335,13 @@ def gameover_menu(status, time_cur):
         pygame.display.update()
 
 
-def game(level):
+def game(level: int) -> None:
+    """
+    Active game mode.
+
+    :param level: Easy(1) or Hard (2) level of the game
+    :return: None
+    """
     # initialise ball movement permission
     active_ball = False
 
