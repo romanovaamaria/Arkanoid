@@ -52,8 +52,18 @@ elif args.color == '4':
     color2 = (21, 153, 122)
     color3 = (1, 121, 111)
 
+def draw_text(str: str, font: int, color:tuple, screen, x: int, y: int):
+    """   
+    Displays text
 
-def draw_text(str, font, color, screen, x, y):
+    :param str: text
+    :param font: size
+    :param color: font color rgb 
+    :param screen: surface 
+    :param x: left-most x coordinate
+    :param y: top y coordinate
+    :returns: None
+    """
     text = font.render(str, 1, color)
     textrect = text.get_rect()
     textrect.topleft = (x, y)
@@ -68,14 +78,23 @@ def time_convert(sec):
 
 
 class paddle():
+    """
+    Object paddle which will be moved by player
+    """
+    # default func is used for init
     def __init__(self):
         self.default()
 
     def draw(self):
+        """
+        Displaying paddle
+        """
         pygame.draw.rect(screen, paddle_color, self.rect, 0, 5)
 
     def default(self):
-        # define paddle variables
+        """
+        Define paddle variables
+        """
         self.height = 30
         self.width = int(screen_width * paddle_size / 3)
         self.x = int((screen_width / 2) - (self.width / 2))
@@ -83,20 +102,33 @@ class paddle():
         self.rect = Rect(self.x, self.y, self.width, self.height)
 
     def move(self):
+        """
+        Movement of paddle using mouse
+        """
         pos = pygame.mouse.get_pos()
         x = pos[0] - self.width / 2
         if (x >= 0) and (x <= (screen_width - 100 - self.width / 2)):
             self.rect.x = x
 
-
+    #object brick, from which wall is created
 class brick():
-    def __init__(self, col, row, strength):
+    """
+    Object brick, from which wall is created
+    
+    """
+    def __init__(self, col: int, row: int, strength:int):
+        """
+        :param col: Number of columns
+        :param row: Number of rows
+        :param srtength: The strength of brick(number of times it has to be hit to be destroyed completely)
+        """
         self.col = col
         self.row = row
         self.strength = strength
         self.heigth = 45
         self.width = screen_width / columns
         self.rect = Rect(self.col * self.width, self.row * self.heigth, self.width, self.heigth)
+        #replacement of rect methods that didn`t work`
         self.left = self.col * self.width
         self.right = self.col * self.width + self.width
         self.top = self.row * self.heigth
@@ -104,10 +136,17 @@ class brick():
 
 
 class brick_wall():
+    """
+    Object - wall created from instances of BRICK class
+    """
+    # default func is used for init
     def __init__(self, level):
         self.level = level
 
     def draw_wall(self):
+        """
+        Defining the color of brick based on its strength and displaying it
+        """
         for row in self.rows_of_bricks:
             for brick in row:
                 if brick.strength == 1:
@@ -119,10 +158,15 @@ class brick_wall():
                 pygame.draw.rect(screen, brick_col, brick.rect)
                 pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
 
+
     def create_wall(self):
+        """
+        Func used to create 2-d array of bricks
+        """
         self.rows_of_bricks = []
         for row in range(rows):
             bricks = []
+            #values of strength depend on level
             for col in range(columns):
                 if self.level == 1:
                     strength = 1
@@ -226,6 +270,9 @@ current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddl
 
 
 def main_menu():
+    """
+    Window that allows level selection using buttons
+    """
     click = False
     while True:
         screen.blit(bg_img, (0, 0))
@@ -241,7 +288,7 @@ def main_menu():
         draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 90, 200)
         draw_text('EASY', font, (255, 255, 255), screen, 220, 295)
         draw_text('HARD', font, (255, 255, 255), screen, 220, 475)
-
+        #buttons to select difficulty level
         if button_1.collidepoint((x, y)):
             if click:
                 game(1)
