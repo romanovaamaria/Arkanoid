@@ -52,7 +52,7 @@ elif args.color == '4':
     color2 = (21, 153, 122)
     color3 = (1, 121, 111)
 
-def draw_text(str: str, font: int, color:tuple, screen, x: int, y: int):
+def draw_text(str: str, font: int, color: tuple, screen, x: int, y: int):
     """   
     Displays text
 
@@ -123,11 +123,11 @@ class brick():
     Object brick, from which wall is created
     
     """
-    def __init__(self, col: int, row: int, strength:int):
+    def __init__(self, col: int, row: int, strength: int):
         """
         :param col: Number of columns
         :param row: Number of rows
-        :param srtength: The strength of brick(number of times it has to be hit to be destroyed completely)
+        :param strength: The strength of brick(number of times it has to be hit to be destroyed completely)
         """
         self.col = col
         self.row = row
