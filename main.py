@@ -300,8 +300,9 @@ def main_menu():
     """
     Window that allows level selection using buttons
     """
+    run = True
     click = False
-    while True:
+    while not click and run:
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.SysFont('Times New Roman', 60)
@@ -325,10 +326,10 @@ def main_menu():
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
+                run = False
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    pygame.quit()
+                    run = False
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
@@ -344,9 +345,9 @@ def gameover_menu(status: int, time_cur: str) -> None:
     :param time_cur: String with formated time
     :return: None
     """
-
+    run = True
     click = False
-    while True:
+    while not click and run:
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.SysFont('Times New Roman', 60)
@@ -371,10 +372,10 @@ def gameover_menu(status: int, time_cur: str) -> None:
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
+                run = False
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    pygame.quit()
+                    run = False
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
@@ -433,10 +434,9 @@ def game(level: int) -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                pygame.quit()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    pygame.quit()
+                    run = False
             if event.type == pygame.MOUSEBUTTONDOWN and not active_ball:
                 active_ball = True
 
