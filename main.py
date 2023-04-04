@@ -77,7 +77,11 @@ def time_convert(sec: int | float) -> str:
     :param sec: seconds given
     :returns: formated string
     :rtype: str
+    :raises ValueError: if sec is negative
     """
+    if sec < 0:
+        raise ValueError("sec must be a positive number")
+
     mins = sec // 60
     hours = mins // 60
     mins = mins % 60
