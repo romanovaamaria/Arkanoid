@@ -52,6 +52,7 @@ elif args.color == '4':
     color2 = (21, 153, 122)
     color3 = (1, 121, 111)
 
+
 def draw_text(str: str, font: int, color: tuple, screen, x: int, y: int):
     """   
     Displays text
@@ -69,13 +70,14 @@ def draw_text(str: str, font: int, color: tuple, screen, x: int, y: int):
     textrect.topleft = (x, y)
     screen.blit(text, textrect)
 
+
 # func to transform seconds to minutes:seconds format
 def time_convert(sec: int | float) -> str:
     """
-    Converts seconds to hours-minutes-seconds format
+    Converts seconds to hours-minutes-seconds format.
 
     :param sec: seconds given
-    :returns: formated string
+    :returns: formatted string
     :rtype: str
     :raises ValueError: if sec is negative
     """
@@ -92,6 +94,7 @@ class paddle():
     """
     Object paddle which will be moved by player
     """
+
     # default func is used for init
     def __init__(self):
         self.default()
@@ -121,12 +124,15 @@ class paddle():
         if (x >= 0) and (x <= (screen_width - 100 - self.width / 2)):
             self.rect.x = x
 
-    #object brick, from which wall is created
+    # object brick, from which wall is created
+
+
 class brick():
     """
     Object brick, from which wall is created
     
     """
+
     def __init__(self, col: int, row: int, strength: int):
         """
         :param col: Number of columns
@@ -139,7 +145,7 @@ class brick():
         self.heigth = 45
         self.width = screen_width / columns
         self.rect = Rect(self.col * self.width, self.row * self.heigth, self.width, self.heigth)
-        #replacement of rect methods that didn`t work`
+        # replacement of rect methods that didn`t work`
         self.left = self.col * self.width
         self.right = self.col * self.width + self.width
         self.top = self.row * self.heigth
@@ -150,6 +156,7 @@ class brick_wall():
     """
     Object - wall created from instances of BRICK class
     """
+
     # default func is used for init
     def __init__(self, level):
         self.level = level
@@ -169,7 +176,6 @@ class brick_wall():
                 pygame.draw.rect(screen, brick_col, brick.rect)
                 pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
 
-
     def create_wall(self):
         """
         Func used to create 2-d array of bricks
@@ -177,7 +183,7 @@ class brick_wall():
         self.rows_of_bricks = []
         for row in range(rows):
             bricks = []
-            #values of strength depend on level
+            # values of strength depend on level
             for col in range(columns):
                 if self.level == 1:
                     strength = 1
@@ -192,7 +198,6 @@ class ball():
     # default func is used for init
     def __init__(self, x, y):
         self.default(x, y)
-
 
     def draw(self):
         """
@@ -306,7 +311,7 @@ def main_menu():
     """
     run = True
     click = False
-    while not click and run:
+    while run:
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.SysFont('Times New Roman', 60)
@@ -320,7 +325,7 @@ def main_menu():
         draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 90, 200)
         draw_text('EASY', font, (255, 255, 255), screen, 220, 295)
         draw_text('HARD', font, (255, 255, 255), screen, 220, 475)
-        #buttons to select difficulty level
+        # buttons to select difficulty level
         if button_1.collidepoint((x, y)):
             if click:
                 game(1)
@@ -351,7 +356,7 @@ def gameover_menu(status: int, time_cur: str) -> None:
     """
     run = True
     click = False
-    while not click and run:
+    while run:
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.SysFont('Times New Roman', 60)
