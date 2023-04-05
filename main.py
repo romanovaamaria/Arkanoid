@@ -27,40 +27,57 @@ bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
 # color change
-parser = argparse.ArgumentParser()
-parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
-args = parser.parse_args()
+# parser = argparse.ArgumentParser()
+# parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
+# args = parser.parse_args()
 
-if args.color == '1':
-    paddle_color = (224, 187, 228)
-    color1 = (254, 200, 216)
-    color2 = (210, 145, 188)
-    color3 = (149, 125, 173)
-elif args.color == '2':
-    paddle_color = (247, 226, 203)
-    color1 = (250, 214, 165)
-    color2 = (247, 179, 156)
-    color3 = (242, 150, 150)
-elif args.color == '3':
-    paddle_color = (111, 211, 252)
-    color1 = (97, 168, 237)
-    color2 = (62, 115, 206)
-    color3 = (49, 66, 190)
-elif args.color == '4':
-    paddle_color = (143, 217, 168)
-    color1 = (72, 191, 145)
-    color2 = (21, 153, 122)
-    color3 = (1, 121, 111)
+# if args.color == '1':
+#     paddle_color = (224, 187, 228)
+#     color1 = (254, 200, 216)
+#     color2 = (210, 145, 188)
+#     color3 = (149, 125, 173)
+# elif args.color == '2':
+#     paddle_color = (247, 226, 203)
+#     color1 = (250, 214, 165)
+#     color2 = (247, 179, 156)
+#     color3 = (242, 150, 150)
+# elif args.color == '3':
+#     paddle_color = (111, 211, 252)
+#     color1 = (97, 168, 237)
+#     color2 = (62, 115, 206)
+#     color3 = (49, 66, 190)
+# elif args.color == '4':
+#     paddle_color = (143, 217, 168)
+#     color1 = (72, 191, 145)
+#     color2 = (21, 153, 122)
+#     color3 = (1, 121, 111)
 
+def draw_text(str: str, font: int, color: tuple, screen, x: int, y: int):
+    """   
+    Displays text
 
-def draw_text(str, font, color, screen, x, y):
+    :param str: text
+    :param font: size
+    :param color: font color rgb 
+    :param screen: surface 
+    :param x: left-most x coordinate
+    :param y: top y coordinate
+    :returns: None
+    """
     text = font.render(str, 1, color)
     textrect = text.get_rect()
     textrect.topleft = (x, y)
     screen.blit(text, textrect)
 
 # func to transform seconds to minutes:seconds format
-def time_convert(sec):
+def time_convert(sec: int | float) -> str:
+    """
+    Converts seconds to hours-minutes-seconds format
+
+    :param sec: seconds given
+    :returns: formated string
+    :rtype: str
+    """
     mins = sec // 60
     hours = mins // 60
     mins = mins % 60
@@ -68,14 +85,23 @@ def time_convert(sec):
 
 
 class paddle():
+    """
+    Object paddle which will be moved by player
+    """
+    # default func is used for init
     def __init__(self):
         self.default()
 
     def draw(self):
+        """
+        Displaying paddle
+        """
         pygame.draw.rect(screen, paddle_color, self.rect, 0, 5)
 
     def default(self):
-        # define paddle variables
+        """
+        Define paddle variables
+        """
         self.height = 30
         self.width = int(screen_width * paddle_size / 3)
         self.x = int((screen_width / 2) - (self.width / 2))
@@ -83,20 +109,33 @@ class paddle():
         self.rect = Rect(self.x, self.y, self.width, self.height)
 
     def move(self):
+        """
+        Movement of paddle using mouse
+        """
         pos = pygame.mouse.get_pos()
         x = pos[0] - self.width / 2
         if (x >= 0) and (x <= (screen_width - 100 - self.width / 2)):
             self.rect.x = x
 
-
+    #object brick, from which wall is created
 class brick():
-    def __init__(self, col, row, strength):
+    """
+    Object brick, from which wall is created
+    
+    """
+    def __init__(self, col: int, row: int, strength: int):
+        """
+        :param col: Number of columns
+        :param row: Number of rows
+        :param strength: The strength of brick(number of times it has to be hit to be destroyed completely)
+        """
         self.col = col
         self.row = row
         self.strength = strength
         self.heigth = 45
         self.width = screen_width / columns
         self.rect = Rect(self.col * self.width, self.row * self.heigth, self.width, self.heigth)
+        #replacement of rect methods that didn`t work`
         self.left = self.col * self.width
         self.right = self.col * self.width + self.width
         self.top = self.row * self.heigth
@@ -104,10 +143,17 @@ class brick():
 
 
 class brick_wall():
+    """
+    Object - wall created from instances of BRICK class
+    """
+    # default func is used for init
     def __init__(self, level):
         self.level = level
 
     def draw_wall(self):
+        """
+        Defining the color of brick based on its strength and displaying it
+        """
         for row in self.rows_of_bricks:
             for brick in row:
                 if brick.strength == 1:
@@ -119,10 +165,15 @@ class brick_wall():
                 pygame.draw.rect(screen, brick_col, brick.rect)
                 pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
 
+
     def create_wall(self):
+        """
+        Func used to create 2-d array of bricks
+        """
         self.rows_of_bricks = []
         for row in range(rows):
             bricks = []
+            #values of strength depend on level
             for col in range(columns):
                 if self.level == 1:
                     strength = 1
@@ -138,13 +189,26 @@ class ball():
     def __init__(self, x, y):
         self.default(x, y)
 
-    # draw the ball itself
+
     def draw(self):
+        """
+        Draws a ball.
+
+        :returns: None
+        """
         pygame.draw.circle(screen, paddle_color, (self.rect.x + self.ball_radius, self.rect.y + self.ball_radius),
                            self.ball_radius)
 
     # reset all the values
-    def default(self, x, y):
+    def default(self, x: int | float, y: int | float) -> None:
+        """
+        Resets all the values to default positions.
+
+        :param x: x coordinate
+        :param y: y coordinate
+        :returns: None
+        :rtype: None
+        """
         self.ball_radius = 14
         self.x = x - self.ball_radius
         self.y = y
@@ -154,7 +218,14 @@ class ball():
         self.game = 0
 
     # the main logic of ball movements and colliding
-    def move(self, wall):
+    def move(self, wall: brick_wall) -> int:
+        """
+        Moves the ball to destroy the bricks.
+
+        :param wall: The wall of bricks
+        :return: win or lose condition
+        :rtype: int
+        """
 
         wall_destroyed = True
         # difference between blocks collided
@@ -226,8 +297,12 @@ current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddl
 
 
 def main_menu():
+    """
+    Window that allows level selection using buttons
+    """
+    run = True
     click = False
-    while True:
+    while  run :
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.SysFont('Times New Roman', 60)
@@ -241,7 +316,7 @@ def main_menu():
         draw_text('SELECT LEVEL', font, (255, 255, 255), screen, 90, 200)
         draw_text('EASY', font, (255, 255, 255), screen, 220, 295)
         draw_text('HARD', font, (255, 255, 255), screen, 220, 475)
-
+        #buttons to select difficulty level
         if button_1.collidepoint((x, y)):
             if click:
                 game(1)
@@ -251,10 +326,10 @@ def main_menu():
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
+                run = False
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    pygame.quit()
+                    run = False
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
@@ -262,9 +337,17 @@ def main_menu():
         pygame.display.update()
 
 
-def gameover_menu(status, time_cur):
+def gameover_menu(status: int, time_cur: str) -> None:
+    """
+    Final menu with stats and restart button.
+
+    :param status: Win or lose condition,
+    :param time_cur: String with formated time
+    :return: None
+    """
+    run = True
     click = False
-    while True:
+    while run:
         screen.blit(bg_img, (0, 0))
         x, y = pygame.mouse.get_pos()
         font = pygame.font.SysFont('Times New Roman', 60)
@@ -289,10 +372,10 @@ def gameover_menu(status, time_cur):
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                pygame.quit()
+                run = False
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    pygame.quit()
+                    run = False
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     click = True
@@ -300,7 +383,13 @@ def gameover_menu(status, time_cur):
         pygame.display.update()
 
 
-def game(level):
+def game(level: int) -> None:
+    """
+    Active game mode.
+
+    :param level: Easy(1) or Hard (2) level of the game
+    :return: None
+    """
     # initialise ball movement permission
     active_ball = False
 
@@ -345,10 +434,9 @@ def game(level):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                pygame.quit()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    pygame.quit()
+                    run = False
             if event.type == pygame.MOUSEBUTTONDOWN and not active_ball:
                 active_ball = True
 
