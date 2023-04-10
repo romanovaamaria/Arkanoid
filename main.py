@@ -52,19 +52,32 @@ bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 #     color2 = (21, 153, 122)
 #     color3 = (1, 121, 111)
 
-def draw_text(str: str, font: int, color: tuple, screen, x: int, y: int):
+def draw_text(string: str, font: int, color: tuple, screen, x: int, y: int):
     """   
     Displays text
 
     :param str: text
-    :param font: size
+    :param font: font
     :param color: font color rgb 
     :param screen: surface 
     :param x: left-most x coordinate
     :param y: top y coordinate
     :returns: None
     """
-    text = font.render(str, 1, color)
+    if not isinstance(string, str):
+        raise ValueError(f"text must be a string, got {type(string)}")
+    if not isinstance(x, int) or x < 0:
+        raise ValueError(f"Invalid value for x: {x}. x must be a positive integer.")
+    if not isinstance(y, int) or y < 0:
+        raise ValueError(f"Invalid value for y: {y}. y must be a positive integer.")
+    if not isinstance(color, tuple) or len(color) != 3 or not all(isinstance(c, int) and 0 <= c <= 255 for c in color):
+        raise ValueError(f"color must be a tuple of three integers between 0 and 255, got {color}")
+    if not isinstance(screen, pygame.Surface):
+        raise ValueError(f"screen must be a pygame.Surface object, got {type(screen)}")
+    try:
+        text = font.render(string, 1, color)
+    except AttributeError as e:
+        raise ValueError(f"Invalid input: {e}")
     textrect = text.get_rect()
     textrect.topleft = (x, y)
     screen.blit(text, textrect)
@@ -123,7 +136,7 @@ class brick():
     Object brick, from which wall is created
     
     """
-    def __init__(self, col: int, row: int, strength: int):
+    def __init__(self, col: int, row: int, strength: int, columns: int, screen_width: int):
         """
         :param col: Number of columns
         :param row: Number of rows
@@ -132,14 +145,25 @@ class brick():
         self.col = col
         self.row = row
         self.strength = strength
-        self.heigth = 45
-        self.width = screen_width / columns
-        self.rect = Rect(self.col * self.width, self.row * self.heigth, self.width, self.heigth)
-        #replacement of rect methods that didn`t work`
+        self.height = 45
+        self.width = screen_width // columns
+        self.rect = pygame.Rect(self.col * self.width, self.row * self.height, self.width, self.height)
+        try:
+            if not isinstance(self.col, int) or not isinstance(self.row, int) or not isinstance(self.strength, int):
+                raise ValueError("col, row, and strength must be integers")
+            if self.col < 0 or self.row < 0 or self.strength < 0:
+                raise ValueError("col, row, and strength must be positive integers")
+            if self.strength == 0:
+                raise ValueError("strength must be greater than 0")
+        except ValueError as e:
+            print(f"Invalid input for Brick object: {e}")
+            raise
+
+        #replacement of rect methods that didn't work
         self.left = self.col * self.width
         self.right = self.col * self.width + self.width
-        self.top = self.row * self.heigth
-        self.bottom = self.row * self.heigth + self.heigth
+        self.top = self.row * self.height
+        self.bottom = self.row * self.height + self.height
 
 
 class brick_wall():
@@ -166,7 +190,7 @@ class brick_wall():
                 pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
 
 
-    def create_wall(self):
+    def create_wall(self, columns, rows):
         """
         Func used to create 2-d array of bricks
         """
@@ -179,7 +203,7 @@ class brick_wall():
                     strength = 1
                 else:
                     strength = rand.randint(1, 3)
-                current_brick = brick(col, row, strength)
+                current_brick = brick(col, row, strength, columns, screen_width)
                 bricks.append(current_brick)
             self.rows_of_bricks.append(bricks)
 
@@ -390,12 +414,15 @@ def game(level: int) -> None:
     :param level: Easy(1) or Hard (2) level of the game
     :return: None
     """
+    if level not in [1, 2]:
+        raise TypeError("Invalid input: level must be 1 or 2.")
+    
     # initialise ball movement permission
     active_ball = False
 
     # initialise brickwall
     wall = brick_wall(level)
-    wall.create_wall()
+    wall.create_wall(columns, rows)
 
     run = True
 
@@ -424,7 +451,7 @@ def game(level: int) -> None:
                 ball.default(current_ball, current_paddle.x + (current_paddle.width / 2),
                              current_paddle.y - current_paddle.height)
                 paddle.default(current_paddle)
-                wall.create_wall()
+                wall.create_wall(columns, rows)
 
                 # stop stopwatch
                 end_time = time.time()
