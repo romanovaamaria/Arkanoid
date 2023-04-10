@@ -1,5 +1,4 @@
 import sys
-
 import pygame
 import time
 import random as rand
@@ -29,30 +28,30 @@ bg_img = pygame.image.load('backgr.jpg')
 bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 
 # color change
-parser = argparse.ArgumentParser()
-parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
-args = parser.parse_args()
+# parser = argparse.ArgumentParser()
+# parser.add_argument('--color', help='Change color palette', choices=['1', '2', '3', '4'])
+# args = parser.parse_args()
 
-if args.color == '1':
-    paddle_color = (224, 187, 228)
-    color1 = (254, 200, 216)
-    color2 = (210, 145, 188)
-    color3 = (149, 125, 173)
-elif args.color == '2':
-    paddle_color = (247, 226, 203)
-    color1 = (250, 214, 165)
-    color2 = (247, 179, 156)
-    color3 = (242, 150, 150)
-elif args.color == '3':
-    paddle_color = (111, 211, 252)
-    color1 = (97, 168, 237)
-    color2 = (62, 115, 206)
-    color3 = (49, 66, 190)
-elif args.color == '4':
-    paddle_color = (143, 217, 168)
-    color1 = (72, 191, 145)
-    color2 = (21, 153, 122)
-    color3 = (1, 121, 111)
+# if args.color == '1':
+#     paddle_color = (224, 187, 228)
+#     color1 = (254, 200, 216)
+#     color2 = (210, 145, 188)
+#     color3 = (149, 125, 173)
+# elif args.color == '2':
+#     paddle_color = (247, 226, 203)
+#     color1 = (250, 214, 165)
+#     color2 = (247, 179, 156)
+#     color3 = (242, 150, 150)
+# elif args.color == '3':
+#     paddle_color = (111, 211, 252)
+#     color1 = (97, 168, 237)
+#     color2 = (62, 115, 206)
+#     color3 = (49, 66, 190)
+# elif args.color == '4':
+#     paddle_color = (143, 217, 168)
+#     color1 = (72, 191, 145)
+#     color2 = (21, 153, 122)
+#     color3 = (1, 121, 111)
 
 
 def draw_text(str: str, font: int, color: tuple, screen, x: int, y: int):
