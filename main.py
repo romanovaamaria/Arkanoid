@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 import time
 import random as rand
@@ -87,6 +89,7 @@ def time_convert(sec: int | float) -> str:
     mins = sec // 60
     hours = mins // 60
     mins = mins % 60
+    sec = sec - mins*60 - hours*3600
     return str("{0}:{1}:{2}".format(int(hours), int(mins), int(sec)))
 
 
@@ -354,6 +357,16 @@ def gameover_menu(status: int, time_cur: str) -> None:
     :param time_cur: String with formated time
     :return: None
     """
+    try:
+        time_str = time_cur.split(':')
+        if len(time_str) != 3:
+            raise ValueError('Invalid time string')
+        hours, minutes, seconds = map(int, time_str)
+        if not (0 <= hours < 24 and 0 <= minutes < 60 and 0 <= seconds < 60):
+            raise ValueError('Invalid time string')
+    except ValueError as e:
+        raise ValueError(f"Invalid time string '{time_cur}': {str(e)}")
+
     run = True
     click = False
     while run:
@@ -399,6 +412,9 @@ def game(level: int) -> None:
     :param level: Easy(1) or Hard (2) level of the game
     :return: None
     """
+    if level not in [1, 2]:
+        raise ValueError("Invalid level provided. Level must be 1 (Easy) or 2 (Hard).")
+
     # initialise ball movement permission
     active_ball = False
 

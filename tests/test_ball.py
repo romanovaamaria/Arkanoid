@@ -3,7 +3,7 @@ from pygame.locals import Rect
 from main import brick_wall, ball, screen_width, screen_height
 
 
-def test_default():
+def test_ball_default():
     # create an instance of the class
     obj = ball(20, 40)
     # set some non-default values
@@ -21,11 +21,6 @@ def test_default():
     assert obj.speed_y == -1
     assert obj.game == 0
 
-
-"""def test_draw():
-    curr_ball = ball(100, 100)
-    # Check that the draw function does not raise any exceptions
-    curr_ball.draw()"""
 
 # create a test brick wall
 test_wall = brick_wall(level=1)
