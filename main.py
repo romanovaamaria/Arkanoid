@@ -102,8 +102,13 @@ class paddle():
     Object paddle which will be moved by player
     """
     # default func is used for init
-    def __init__(self):
-        self.default()
+    def __init__(self, screen_width, screen_height, paddle_size, paddle_color):
+        self.width = int(screen_width * paddle_size / 3)
+        self.height = 30
+        self.x = int((screen_width / 2) - (self.width / 2))
+        self.y = screen_height - (self.height * 2)
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.paddle_color = paddle_color
 
     def draw(self):
         """
@@ -111,26 +116,16 @@ class paddle():
         """
         pygame.draw.rect(screen, paddle_color, self.rect, 0, 5)
 
-    def default(self):
-        """
-        Define paddle variables
-        """
-        self.height = 30
-        self.width = int(screen_width * paddle_size / 3)
-        self.x = int((screen_width / 2) - (self.width / 2))
-        self.y = screen_height - (self.height * 2)
-        self.rect = Rect(self.x, self.y, self.width, self.height)
 
-    def move(self):
+    def move(self, mouse_position):
         """
         Movement of paddle using mouse
         """
-        pos = pygame.mouse.get_pos()
-        x = pos[0] - self.width / 2
+        x = mouse_position[0] - self.width / 2
         if (x >= 0) and (x <= (screen_width - 100 - self.width / 2)):
             self.rect.x = x
 
-    #object brick, from which wall is created
+#object brick, from which wall is created
 class brick():
     """
     Object brick, from which wall is created
@@ -174,7 +169,7 @@ class brick_wall():
     def __init__(self, level):
         self.level = level
 
-    def draw_wall(self):
+    def draw_wall(self,screen, color1, color2, color3):
         """
         Defining the color of brick based on its strength and displaying it
         """
@@ -316,7 +311,7 @@ class ball():
         return self.game
 
 
-current_paddle = paddle()
+current_paddle = paddle(screen_width, screen_height, paddle_size, paddle_color)
 current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
 
 
@@ -432,13 +427,14 @@ def game(level: int) -> None:
         screen.blit(bg_img, (0, 0))
 
         # draw a wall, a paddle and a ball
-        wall.draw_wall()
+        wall.draw_wall(screen, color1, color2, color3)
         current_paddle.draw()
         current_ball.draw()
 
         # ball moves
         if active_ball:
-            current_paddle.move()
+            pos = pygame.mouse.get_pos()
+            current_paddle.move(pos)
             # check if the wall is destroyed or the ball fell down
             active_game = current_ball.move(wall)
 
