@@ -24,7 +24,7 @@ def test_ball_default():
 
 # create a test brick wall
 test_wall = brick_wall(level=1)
-test_wall.create_wall()
+test_wall.create_wall(6,6)
 
 # create a test ball object
 test_ball = ball(x=screen_width // 2, y=screen_height // 2)
@@ -33,12 +33,12 @@ test_ball = ball(x=screen_width // 2, y=screen_height // 2)
 test_cases = [
     # test that ball collides with brick and its strength reduces by 1
     {"ball_x": test_wall.rows_of_bricks[1][2].left + test_wall.rows_of_bricks[1][2].width // 2,
-     "ball_y": test_wall.rows_of_bricks[1][2].top + test_wall.rows_of_bricks[1][2].heigth + test_ball.ball_radius,
+     "ball_y": test_wall.rows_of_bricks[1][2].top + test_wall.rows_of_bricks[1][2].height + test_ball.ball_radius,
      "expected_strength": test_wall.rows_of_bricks[1][2].strength - 1},
 
     # test that ball destroys brick when strength is reduced to 0
     {"ball_x": test_wall.rows_of_bricks[2][2].left + test_wall.rows_of_bricks[2][2].width // 2,
-     "ball_y": test_wall.rows_of_bricks[2][2].top + test_wall.rows_of_bricks[2][2].heigth + test_ball.ball_radius,
+     "ball_y": test_wall.rows_of_bricks[2][2].top + test_wall.rows_of_bricks[2][2].height + test_ball.ball_radius,
      "expected_strength": 0},
 ]
 
