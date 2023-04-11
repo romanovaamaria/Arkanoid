@@ -111,6 +111,10 @@ class paddle():
     """
 
     # default func is used for init
+    def default(self):
+    #define paddle variables
+        self.__init__(screen_width, screen_height, paddle_size, paddle_color)
+        
     def __init__(self, screen_width, screen_height, paddle_size, paddle_color):
         self.width = int(screen_width * paddle_size / 3)
         self.height = 30
