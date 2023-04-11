@@ -53,20 +53,33 @@ bg_img = pygame.transform.scale(bg_img, (screen_width, screen_height))
 #     color2 = (21, 153, 122)
 #     color3 = (1, 121, 111)
 
+def draw_text(string: str, font: int, color: tuple, screen, x: int, y: int):
 
-def draw_text(str: str, font: int, color: tuple, screen, x: int, y: int):
     """   
     Displays text
 
     :param str: text
-    :param font: size
+    :param font: font
     :param color: font color rgb 
     :param screen: surface 
     :param x: left-most x coordinate
     :param y: top y coordinate
     :returns: None
     """
-    text = font.render(str, 1, color)
+    if not isinstance(string, str):
+        raise ValueError(f"text must be a string, got {type(string)}")
+    if not isinstance(x, int) or x < 0:
+        raise ValueError(f"Invalid value for x: {x}. x must be a positive integer.")
+    if not isinstance(y, int) or y < 0:
+        raise ValueError(f"Invalid value for y: {y}. y must be a positive integer.")
+    if not isinstance(color, tuple) or len(color) != 3 or not all(isinstance(c, int) and 0 <= c <= 255 for c in color):
+        raise ValueError(f"color must be a tuple of three integers between 0 and 255, got {color}")
+    if not isinstance(screen, pygame.Surface):
+        raise ValueError(f"screen must be a pygame.Surface object, got {type(screen)}")
+    try:
+        text = font.render(string, 1, color)
+    except AttributeError as e:
+        raise ValueError(f"Invalid input: {e}")
     textrect = text.get_rect()
     textrect.topleft = (x, y)
     screen.blit(text, textrect)
@@ -98,8 +111,13 @@ class paddle():
     """
 
     # default func is used for init
-    def __init__(self):
-        self.default()
+    def __init__(self, screen_width, screen_height, paddle_size, paddle_color):
+        self.width = int(screen_width * paddle_size / 3)
+        self.height = 30
+        self.x = int((screen_width / 2) - (self.width / 2))
+        self.y = screen_height - (self.height * 2)
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.paddle_color = paddle_color
 
     def draw(self):
         """
@@ -107,35 +125,23 @@ class paddle():
         """
         pygame.draw.rect(screen, paddle_color, self.rect, 0, 5)
 
-    def default(self):
-        """
-        Define paddle variables
-        """
-        self.height = 30
-        self.width = int(screen_width * paddle_size / 3)
-        self.x = int((screen_width / 2) - (self.width / 2))
-        self.y = screen_height - (self.height * 2)
-        self.rect = Rect(self.x, self.y, self.width, self.height)
 
-    def move(self):
+    def move(self, mouse_position):
         """
         Movement of paddle using mouse
         """
-        pos = pygame.mouse.get_pos()
-        x = pos[0] - self.width / 2
+        x = mouse_position[0] - self.width / 2
         if (x >= 0) and (x <= (screen_width - 100 - self.width / 2)):
             self.rect.x = x
 
-    # object brick, from which wall is created
 
-
+#object brick, from which wall is created
 class brick():
     """
     Object brick, from which wall is created
     
     """
-
-    def __init__(self, col: int, row: int, strength: int):
+    def __init__(self, col: int, row: int, strength: int, columns: int, screen_width: int):
         """
         :param col: Number of columns
         :param row: Number of rows
@@ -144,14 +150,25 @@ class brick():
         self.col = col
         self.row = row
         self.strength = strength
-        self.heigth = 45
-        self.width = screen_width / columns
-        self.rect = Rect(self.col * self.width, self.row * self.heigth, self.width, self.heigth)
-        # replacement of rect methods that didn`t work`
+        self.height = 45
+        self.width = screen_width // columns
+        self.rect = pygame.Rect(self.col * self.width, self.row * self.height, self.width, self.height)
+        try:
+            if not isinstance(self.col, int) or not isinstance(self.row, int) or not isinstance(self.strength, int):
+                raise ValueError("col, row, and strength must be integers")
+            if self.col < 0 or self.row < 0 or self.strength < 0:
+                raise ValueError("col, row, and strength must be positive integers")
+            if self.strength == 0:
+                raise ValueError("strength must be greater than 0")
+        except ValueError as e:
+            print(f"Invalid input for Brick object: {e}")
+            raise
+
+        #replacement of rect methods that didn't work
         self.left = self.col * self.width
         self.right = self.col * self.width + self.width
-        self.top = self.row * self.heigth
-        self.bottom = self.row * self.heigth + self.heigth
+        self.top = self.row * self.height
+        self.bottom = self.row * self.height + self.height
 
 
 class brick_wall():
@@ -163,7 +180,7 @@ class brick_wall():
     def __init__(self, level):
         self.level = level
 
-    def draw_wall(self):
+    def draw_wall(self,screen, color1, color2, color3):
         """
         Defining the color of brick based on its strength and displaying it
         """
@@ -178,7 +195,8 @@ class brick_wall():
                 pygame.draw.rect(screen, brick_col, brick.rect)
                 pygame.draw.rect(screen, paddle_color, (brick.rect), 2)
 
-    def create_wall(self):
+    def create_wall(self, columns, rows):
+
         """
         Func used to create 2-d array of bricks
         """
@@ -191,7 +209,7 @@ class brick_wall():
                     strength = 1
                 else:
                     strength = rand.randint(1, 3)
-                current_brick = brick(col, row, strength)
+                current_brick = brick(col, row, strength, columns, screen_width)
                 bricks.append(current_brick)
             self.rows_of_bricks.append(bricks)
 
@@ -303,7 +321,7 @@ class ball():
         return self.game
 
 
-current_paddle = paddle()
+current_paddle = paddle(screen_width, screen_height, paddle_size, paddle_color)
 current_ball = ball(current_paddle.x + (current_paddle.width / 2), current_paddle.y - current_paddle.height)
 
 
@@ -413,13 +431,12 @@ def game(level: int) -> None:
     """
     if level not in [1, 2]:
         raise ValueError("Invalid level provided. Level must be 1 (Easy) or 2 (Hard).")
-
     # initialise ball movement permission
     active_ball = False
 
     # initialise brickwall
     wall = brick_wall(level)
-    wall.create_wall()
+    wall.create_wall(columns, rows)
 
     run = True
 
@@ -429,13 +446,14 @@ def game(level: int) -> None:
         screen.blit(bg_img, (0, 0))
 
         # draw a wall, a paddle and a ball
-        wall.draw_wall()
+        wall.draw_wall(screen, color1, color2, color3)
         current_paddle.draw()
         current_ball.draw()
 
         # ball moves
         if active_ball:
-            current_paddle.move()
+            pos = pygame.mouse.get_pos()
+            current_paddle.move(pos)
             # check if the wall is destroyed or the ball fell down
             active_game = current_ball.move(wall)
 
@@ -448,7 +466,7 @@ def game(level: int) -> None:
                 ball.default(current_ball, current_paddle.x + (current_paddle.width / 2),
                              current_paddle.y - current_paddle.height)
                 paddle.default(current_paddle)
-                wall.create_wall()
+                wall.create_wall(columns, rows)
 
                 # stop stopwatch
                 end_time = time.time()
